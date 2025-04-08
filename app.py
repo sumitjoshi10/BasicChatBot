@@ -55,22 +55,25 @@ def hugging_face_chatbot():
     st.title("Chatbot with HUGGING FACE")
     input_text = st.text_input("Search the topic you want")
 
-    ## Initialize Groq LLM
-    repo_id = "mistralai/Mistral-7B-Instruct-v0.2"
-
+    ## Initialize Hugging Face LLM
     llm = HuggingFaceEndpoint(
-        repo_id=repo_id,
-        max_length=128,
-        temperature=0.5,
+        repo_id = "mistralai/Mistral-7B-Instruct-v0.2",
         task="text-generation",
-        huggingfacehub_api_token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
     )
+   
+
+    model = ChatHuggingFace(
+    llm = llm,
+    temperature = 0.7, ## 0.0-2.0, higher is more creative
+    huggingfacehub_api_token = os.getenv("HUGGINGFACEHUB_API_TOKEN"), ## get from https://huggingface.co/settings/toke
+    max_completion_tokens = 100 ## 1-100000, max is 100000 - prompt length, 
+)
 
     ## Definint the Type of Output Parser
     output_parser = StrOutputParser()
 
     ## Create the chain that guarantees JSON output
-    chain = prompt | llm | output_parser
+    chain = prompt | model | output_parser
     
     if input_text:
         st.write(chain.invoke({"question": input_text}))
